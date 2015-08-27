@@ -9,9 +9,6 @@ import no.mesan.hipchatparse.system.{ActorNames, TaskDone}
 import no.mesan.hipchatparse.users.UserDb.{GetUsers, FoundUser, UserNotFound}
 import no.mesan.hipchatparse.utils.NameHelper
 
-import scala.util.Random
-
-
 /** Adds user information to messages. */
 class UserFilter(master: ActorRef, userDb: ActorRef, formatter: ActorRef) extends Actor
   with ActorLogging with NameHelper {

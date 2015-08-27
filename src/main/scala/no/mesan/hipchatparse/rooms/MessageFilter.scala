@@ -39,8 +39,8 @@ object MessageFilter {
 
   /** Convert text in messages. */
   def wash(s: String): String = s.
-    replaceAll("[@](\\w+)\\b", "[~$1]").
-    replaceAll("""\\n""", "\n")
+    replaceAll("[@](\\w+)\\b", "[~$1]"). // Create user refs from mentions
+    replaceAll("""\\n""", "\n") // Handle inline line feeds
 
   /** Blank repeated values for date and user. */
   def filterDuplicates(messages: List[Message]): List[Message] = {
