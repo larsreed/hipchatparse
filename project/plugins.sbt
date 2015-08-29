@@ -1,4 +1,4 @@
-logLevel := sbt.Level.Debug
+logLevel := sbt.Level.Info
 
 
 addSbtPlugin("org.scalastyle" %% "scalastyle-sbt-plugin" % "0.7.0")
