@@ -8,6 +8,11 @@ Dette lille prosjektet:
 Communication outline:
 <img src="hipchatparse.png" />
 
+## Usage
+
+1. sbt assembly
+2. java -jar &lt;....&gt;/hipchatparse.jar baseDir [resultDir]
+
 ## Authors ##
 lre = Lars Reed, Mesan AS
 
