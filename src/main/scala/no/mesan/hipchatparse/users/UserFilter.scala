@@ -28,6 +28,11 @@ class UserFilter(master: ActorRef, userDb: ActorRef, formatter: ActorRef) extend
       context.become(waiting)
   }
 
+  val doneWorking: Receive = LoggingReceive {
+    case CheckIfDone => true
+    case msg => log.warning(s"Too late, how come? $msg")
+  }
+
   val waiting: Receive = LoggingReceive {
     case UserNotFound(id) =>
       missingIds = missingIds - id
@@ -47,6 +52,7 @@ class UserFilter(master: ActorRef, userDb: ActorRef, formatter: ActorRef) extend
         val next = context.actorOf(MessageFilter.props(master, formatter), s"${ActorNames.messageFilter}-$shortName")
         next ! FilterRoomContents(Room(roomName, newList))
         master ! TaskDone(s"user filter for $roomName")
+        context.become(doneWorking)
       }
   }
 }
