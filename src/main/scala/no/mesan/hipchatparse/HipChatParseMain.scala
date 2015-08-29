@@ -36,8 +36,9 @@ class HipChatParseMain extends Actor with ActorLogging {
     case FoundRoom(name) =>
       roomList = roomList + name
 
-    case WroteRoom(name) =>
+    case WroteRoom(name, count) =>
       roomList = roomList - name
+      println(s"$name :: $count")
       self ! CheckIfDone
 
     case LastRoom =>

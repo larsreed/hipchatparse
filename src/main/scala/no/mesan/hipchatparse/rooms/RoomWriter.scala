@@ -22,7 +22,7 @@ class RoomWriter(master: ActorRef) extends Actor with ActorLogging {
       log.debug(s"writing ${room.name} to $fileName")
       Files.write(Paths.get(fileName), formatted.getBytes(StandardCharsets.UTF_8))
       master ! TaskDone(s"wrote room ${room.name}")
-      master ! WroteRoom(room.name)
+      master ! WroteRoom(room.name, room.conversation.size)
   }
 }
 
@@ -30,7 +30,7 @@ object RoomWriter {
   /** Write room data. */
   case class WriteRoom(room: Room, formatted: String)
   /** Report a room being finished. */
-  case class WroteRoom(roomName: String)
+  case class WroteRoom(roomName: String, numberOfLines: Int)
 
   /** "Constructor" */
   def props(master: ActorRef) = Props(new RoomWriter(master))
