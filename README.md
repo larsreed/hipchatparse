@@ -9,10 +9,12 @@ This little project:
 3. Writes one .room-file for each room, to be inserted as wiki markup in Confluence
     * The result format is
 
+        ```
         h2. <room name>
         
         | date | @user | text |
         | <blank if equal to above> | <ditto> | ... |
+        ```
 
     * The text tables are split at each 1000 rows, to stop Confluence from choking...
     
