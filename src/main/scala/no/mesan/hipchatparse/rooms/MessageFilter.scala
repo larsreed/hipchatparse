@@ -15,6 +15,7 @@ class MessageFilter(master: ActorRef, formatter: ActorRef) extends Actor with Ac
       val newList =
         MessageFilter.filterDuplicates(room.conversation.
           filter(msg => MessageFilter.okText(msg.text))).
+          filter(msg=> msg.user.fullName!="JIRA").
           map {msg => Message(msg.user, msg.datestamp, MessageFilter.wash(msg.text))}
       formatter ! FormatRoom(Room(room.name, newList))
       master ! TaskDone(s"message filter for ${room.name}")
@@ -26,21 +27,25 @@ object MessageFilter {
   /** Filter contents. */
   case class FilterRoomContents(room: Room)
 
-  val ignored= List("Welcome to Hipchat. You can @-mention me by typing @HipChat")
+  val ignored= List(
+    "Welcome to Hipchat. You can @-mention me by typing @HipChat",
+    "You can ask me about:.*HipChat"
+  )
 
   /** "Constructor" */
   def props(master: ActorRef, formatter: ActorRef) = Props(new MessageFilter(master, formatter))
 
   /** Filter unwanted texts. */
   def okText(text: String): Boolean = {
-    for (pattern <- ignored) if (text.matches(s".*$pattern.*")) return false
+    for (pattern <- ignored)
+      if (text.matches(s".*$pattern.*") || text.matches("^\\s*$") || text.matches("^\\s*@HipChat\\s*$")) return false
     true
   }
 
   /** Convert text in messages. */
   def wash(s: String): String = s.
-    replaceAll("[@](\\w+)\\b", "[~$1]"). // Create user refs from mentions
-    replaceAll("""\\n""", "\n") // Handle inline line feeds
+    replaceAll("""\\n""", "\n"). // Handle inline line feeds
+    replaceAll("(\\\n)+", "\n")
 
   /** Blank repeated values for date and user. */
   def filterDuplicates(messages: List[Message]): List[Message] = {

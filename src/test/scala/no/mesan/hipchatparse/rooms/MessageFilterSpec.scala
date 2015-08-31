@@ -15,8 +15,20 @@ class MessageFilterSpec extends FlatSpec {
       assert(!MessageFilter.okText("Hi @larsr! Welcome to Hipchat. You can @-mention me by typing @HipChat and I'll tell you what HipChat can do!"))
   }
 
+  it should "exclude standard help texts" in {
+    assert(!MessageFilter.okText("You can ask me about:<ul><li><i>video</i> - Call your teammates with HipChat Video"))
+  }
+
   it should "accept other texts" in {
     assert(MessageFilter.okText("Hi @larsr! I'll tell you what HipChat can do!"))
+  }
+
+  it should "except empty strings" in {
+    assert(!MessageFilter.okText("\t \t"))
+  }
+
+  it should "and cries for help" in {
+    assert(!MessageFilter.okText(" @HipChat"))
   }
 
   it should "null repeated username" in {
