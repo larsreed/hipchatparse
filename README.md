@@ -5,7 +5,7 @@ This little project:
 2. Creates wiki markup formatted tables with the contents
     * Deletes empty messages, welcome messages and messages from JIRA
     * Replaces @name-references with [~name] -- assumes names in HipChat and Confluence are the same
-    * Replaces /code with {{...}}
+    * Replaces /code with {noformat}...{noformat}
 3. Writes one .room-file for each room, to be inserted as wiki markup in Confluence
     * The result format is
 
