@@ -2,6 +2,7 @@ package no.mesan.hipchatparse.rooms
 
 import akka.actor.{Props, Actor, ActorLogging, ActorRef}
 import akka.event.LoggingReceive
+import no.mesan.hipchatparse.rooms.RoomWriter.RoomDone
 import no.mesan.hipchatparse.utils.{NameHelper, FileIO}
 import no.mesan.hipchatparse.rooms.RoomParser.MakeRoom
 import no.mesan.hipchatparse.system.{Breakdown, TaskDone}
@@ -48,9 +49,11 @@ class RoomFileReader(master: ActorRef, roomParser: ActorRef) extends Actor
 
   override def receive: Receive = LoggingReceive {
     case ReadRoom(dir) =>
+      val roomName= stripPath(dir)
       val files= FileIO.scanDir(dir).files.sorted.reverse
       if (files.isEmpty) {
         log.warning(s"no files in directory $dir")
+        master ! RoomDone(roomName, 0)
       }
       else {
         var jsonList= List.empty[String]
@@ -58,8 +61,8 @@ class RoomFileReader(master: ActorRef, roomParser: ActorRef) extends Actor
           val contents= FileIO.fromFile(file)
           contents.foreach(s=> jsonList= s.replaceAll("[\r\u000A]", "") :: jsonList)
         }
-        roomParser ! MakeRoom(stripPath(dir), jsonList)
-        master ! TaskDone(s"read room $dir")
+        roomParser ! MakeRoom(roomName, jsonList)
+        master ! TaskDone(s"read room $roomName")
       }
   }
 }

@@ -2,6 +2,7 @@ package no.mesan.hipchatparse.rooms
 
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import akka.event.LoggingReceive
+import no.mesan.hipchatparse.rooms.RoomWriter.RoomDone
 import no.mesan.hipchatparse.system.HipChatConfig._
 import no.mesan.hipchatparse.system.{ActorNames, TaskDone}
 import no.mesan.hipchatparse.users.UserFilter.FilterRoomUser
@@ -29,7 +30,13 @@ class RoomParser(master: ActorRef, userDb: ActorRef, formatter: ActorRef) extend
         }
         else res = res ++ parsed.get
       }
-      filter ! FilterRoomUser(Room(name, res))
+      if (res.isEmpty) {
+        log.warning(s"$name has no content")
+        master ! RoomDone(name, 0)
+      }
+      else {
+        filter ! FilterRoomUser(Room(name, res))
+      }
       master ! TaskDone(s"parsing room $name")
   }
 }

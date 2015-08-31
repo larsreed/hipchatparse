@@ -3,7 +3,7 @@ package no.mesan.hipchatparse
 import akka.actor.{Actor, ActorLogging, Props}
 import akka.event.LoggingReceive
 import no.mesan.hipchatparse.rooms.RoomDirReader.{LastRoom, FoundRoom, BuildRooms}
-import no.mesan.hipchatparse.rooms.RoomWriter.WroteRoom
+import no.mesan.hipchatparse.rooms.RoomWriter.RoomDone
 import no.mesan.hipchatparse.rooms._
 import no.mesan.hipchatparse.system._
 import no.mesan.hipchatparse.users.UserReader.BuildUserDB
@@ -36,7 +36,7 @@ class HipChatParseMain extends Actor with ActorLogging {
     case FoundRoom(name) =>
       roomList = roomList + name
 
-    case WroteRoom(name, count) =>
+    case RoomDone(name, count) =>
       roomList = roomList - name
       println(s"$name :: $count")
       self ! CheckIfDone
