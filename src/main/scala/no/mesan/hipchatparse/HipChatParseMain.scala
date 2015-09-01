@@ -10,15 +10,15 @@ import no.mesan.hipchatparse.rooms.RoomDirReader.{LastRoom, FoundRoom, BuildRoom
 import no.mesan.hipchatparse.rooms.RoomWriter.RoomDone
 import no.mesan.hipchatparse.rooms._
 import no.mesan.hipchatparse.system._
-import no.mesan.hipchatparse.users.UserReader.BuildUserDB
-import no.mesan.hipchatparse.users.{UserDb, UserReader}
+import no.mesan.hipchatparse.users.UserParser.BuildUserDB
+import no.mesan.hipchatparse.users.{UserParser, UserDb}
 
 /** Main actor -- starts and ends the show. */
 class HipChatParseMain extends Actor with ActorLogging {
   import no.mesan.hipchatparse.HipChatParseMain.{Start, CheckIfDone}
 
   private val userDb= context.actorOf(UserDb.props(self), ActorNames.userDb)
-  private val userReader= context.actorOf(UserReader.props(self, userDb), ActorNames.userReader)
+  private val userReader= context.actorOf(UserParser.props(self, userDb), ActorNames.userReader)
   private val writer= context.actorOf(RoomWriter.props(self), ActorNames.roomWriter)
   private val formatter= context.actorOf(WikiRoomFormatter.props(self, writer), ActorNames.roomFormatter)
   private val roomParser= context.actorOf(RoomParser.props(self, userDb, formatter), ActorNames.roomParser)

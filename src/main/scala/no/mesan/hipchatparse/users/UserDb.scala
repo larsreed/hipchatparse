@@ -3,7 +3,7 @@ package no.mesan.hipchatparse.users
 import akka.actor._
 import akka.event.LoggingReceive
 import no.mesan.hipchatparse.system.{TaskDone, HipChatConfig}
-import no.mesan.hipchatparse.users.UserReader.LastUser
+import no.mesan.hipchatparse.users.UserParser.LastUser
 
 /** Master user mapping DB. */
 class UserDb(master: ActorRef) extends Actor with Stash with ActorLogging {

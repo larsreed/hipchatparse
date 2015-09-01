@@ -13,7 +13,7 @@ object ActorNames {
   /** Name of main actor. */
   val master= "Master"
   /** Name of User dir reader. */
-  val userReader = "UserReader"
+  val userReader = "UserParser"
   /** Name of room dir reader. */
   val roomDirReader = "RoomDirReader"
   /** Name of room file reader. */

@@ -1,6 +1,6 @@
 package no.mesan.hipchatparse.users
 
-import no.mesan.hipchatparse.users.UserReader._
+import no.mesan.hipchatparse.users.UserParser._
 import org.junit.runner.RunWith
 import org.scalatest.FlatSpec
 import org.scalatest.junit.JUnitRunner
@@ -8,7 +8,7 @@ import org.scalatest.junit.JUnitRunner
 import scala.language.postfixOps
 
 @RunWith(classOf[JUnitRunner])
-class UserReaderSpec extends FlatSpec {
+class UserParserSpec extends FlatSpec {
   val singleInput = """{
             |  "users":[
             |    {
