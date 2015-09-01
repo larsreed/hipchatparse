@@ -2,10 +2,11 @@ package no.mesan.hipchatparse.users
 
 import akka.actor._
 import akka.event.LoggingReceive
+import no.mesan.hipchatparse.messages.MessageFilter
+import no.mesan.hipchatparse.{TaskDone, ActorNames}
 import no.mesan.hipchatparse.HipChatParseMain.CheckIfDone
-import no.mesan.hipchatparse.rooms.MessageFilter.FilterRoomContents
-import no.mesan.hipchatparse.rooms.{MessageFilter, Room, Message}
-import no.mesan.hipchatparse.system.{ActorNames, TaskDone}
+import MessageFilter.FilterRoomContents
+import no.mesan.hipchatparse.rooms.{Room, Message}
 import no.mesan.hipchatparse.users.UserDb.{GetUsers, FoundUser, UserNotFound}
 import no.mesan.hipchatparse.utils.NameHelper
 

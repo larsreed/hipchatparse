@@ -2,9 +2,9 @@ package no.mesan.hipchatparse.rooms
 
 import akka.actor.{Props, Actor, ActorLogging, ActorRef}
 import akka.event.LoggingReceive
+import no.mesan.hipchatparse.{TaskDone, Config}
 import no.mesan.hipchatparse.rooms.RoomWriter.WriteRoom
-import no.mesan.hipchatparse.system.Config._
-import no.mesan.hipchatparse.system.TaskDone
+import Config._
 
 /** Formats room content for output. Could be replaced for different outputs. */
 class WikiRoomFormatter(master: ActorRef, writer: ActorRef) extends Actor with ActorLogging {

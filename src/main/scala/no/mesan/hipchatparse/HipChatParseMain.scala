@@ -9,7 +9,6 @@ import akka.event.LoggingReceive
 import no.mesan.hipchatparse.rooms.RoomDirReader.{LastRoom, FoundRoom, BuildRooms}
 import no.mesan.hipchatparse.rooms.RoomWriter.RoomDone
 import no.mesan.hipchatparse.rooms._
-import no.mesan.hipchatparse.system._
 import no.mesan.hipchatparse.users.UserParser.BuildUserDB
 import no.mesan.hipchatparse.users.{UserParser, UserDb}
 

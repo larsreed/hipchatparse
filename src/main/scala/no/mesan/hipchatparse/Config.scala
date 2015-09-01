@@ -1,4 +1,4 @@
-package no.mesan.hipchatparse.system
+package no.mesan.hipchatparse
 
 /** Misc. constants. */
 object Config {

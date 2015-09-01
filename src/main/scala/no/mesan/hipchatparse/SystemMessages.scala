@@ -1,4 +1,4 @@
-package no.mesan.hipchatparse.system
+package no.mesan.hipchatparse
 
 /** Cannot continue :( */
 case class Breakdown(message: String)

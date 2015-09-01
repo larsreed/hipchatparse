@@ -2,7 +2,7 @@ package no.mesan.hipchatparse.users
 
 import akka.actor._
 import akka.event.LoggingReceive
-import no.mesan.hipchatparse.system.{TaskDone, HipChatConfig}
+import no.mesan.hipchatparse.{TaskDone, HipChatConfig}
 import no.mesan.hipchatparse.users.UserParser.LastUser
 
 /** Master user mapping DB. */

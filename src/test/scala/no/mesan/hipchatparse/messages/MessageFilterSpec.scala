@@ -1,6 +1,7 @@
-package no.mesan.hipchatparse.rooms
+package no.mesan.hipchatparse.messages
 
-import no.mesan.hipchatparse.rooms.MessageFilter._
+import no.mesan.hipchatparse.messages.MessageFilter._
+import no.mesan.hipchatparse.rooms.{Message, Room}
 import no.mesan.hipchatparse.users.User
 import org.junit.runner.RunWith
 import org.scalatest.FlatSpec

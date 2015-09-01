@@ -1,14 +1,15 @@
-package no.mesan.hipchatparse.rooms
+package no.mesan.hipchatparse.messages
 
-import akka.actor.{Props, Actor, ActorLogging, ActorRef}
+import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import akka.event.LoggingReceive
+import no.mesan.hipchatparse.TaskDone
+import no.mesan.hipchatparse.messages.MessageFilter.FilterRoomContents
 import no.mesan.hipchatparse.rooms.WikiRoomFormatter.FormatRoom
-import no.mesan.hipchatparse.system.TaskDone
+import no.mesan.hipchatparse.rooms.{Message, Room}
 import no.mesan.hipchatparse.users.NoUser
 
 /** Discards unwanted messages. */
 class MessageFilter(master: ActorRef, formatter: ActorRef) extends Actor with ActorLogging {
-  import no.mesan.hipchatparse.rooms.MessageFilter.FilterRoomContents
 
   override def receive: Receive = LoggingReceive {
     case FilterRoomContents(room) =>

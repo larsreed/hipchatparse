@@ -1,12 +1,12 @@
 package no.mesan.hipchatparse.users
 
-import akka.actor.{Props, ActorRef, Actor, ActorLogging}
+import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import akka.event.LoggingReceive
-import no.mesan.hipchatparse.utils.FileIO
-import no.mesan.hipchatparse.system.HipChatConfig._
-import no.mesan.hipchatparse.system.{Breakdown, TaskDone}
+import no.mesan.hipchatparse.HipChatConfig._
 import no.mesan.hipchatparse.users.UserDb.AddUser
 import no.mesan.hipchatparse.users.UserParser.LastUser
+import no.mesan.hipchatparse.utils.FileIO
+import no.mesan.hipchatparse.{Breakdown, HipChatConfig, TaskDone}
 import play.api.libs.json.{JsValue, Json}
 
 import scala.util.{Failure, Success, Try}

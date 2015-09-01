@@ -2,9 +2,9 @@ package no.mesan.hipchatparse.rooms
 
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import akka.event.LoggingReceive
+import no.mesan.hipchatparse.{TaskDone, ActorNames, HipChatConfig}
 import no.mesan.hipchatparse.rooms.RoomWriter.RoomDone
-import no.mesan.hipchatparse.system.HipChatConfig._
-import no.mesan.hipchatparse.system.{ActorNames, TaskDone}
+import HipChatConfig._
 import no.mesan.hipchatparse.users.UserFilter.FilterRoomUser
 import no.mesan.hipchatparse.users.{User, UserFilter}
 import no.mesan.hipchatparse.utils.NameHelper

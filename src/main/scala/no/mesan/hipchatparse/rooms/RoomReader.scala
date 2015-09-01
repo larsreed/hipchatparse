@@ -1,11 +1,11 @@
 package no.mesan.hipchatparse.rooms
 
-import akka.actor.{Props, Actor, ActorLogging, ActorRef}
+import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import akka.event.LoggingReceive
-import no.mesan.hipchatparse.rooms.RoomWriter.RoomDone
-import no.mesan.hipchatparse.utils.{NameHelper, FileIO}
+import no.mesan.hipchatparse.{Breakdown, TaskDone}
 import no.mesan.hipchatparse.rooms.RoomParser.MakeRoom
-import no.mesan.hipchatparse.system.{Breakdown, TaskDone}
+import no.mesan.hipchatparse.rooms.RoomWriter.RoomDone
+import no.mesan.hipchatparse.utils.{FileIO, NameHelper}
 
 /** Scans room directory. */
 class RoomDirReader(master: ActorRef, fileReader: ActorRef) extends Actor
