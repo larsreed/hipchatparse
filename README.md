@@ -25,6 +25,15 @@ The project is written in Scala using Akka, because I can :)
 Communication outline:
 <img src="hipchatparse.png" />
 
+This is obviously overengineered compared to the task at hand... But why not.
+I have tried to make it fairly simple to change, e.g.
+
+* read from API rather than file export
+* parse XML (or whatevet) rather than JSON
+* produce HTML rather than wiki markup
+* write to an API rather than file
+* etc
+
 ## Usage ##
 
 1. sbt assembly
