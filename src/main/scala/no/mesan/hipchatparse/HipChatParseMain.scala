@@ -1,7 +1,11 @@
 package no.mesan.hipchatparse
 
-import akka.actor.{Actor, ActorLogging, Props}
+import scala.concurrent.duration._
+import scala.language.postfixOps
+
+import akka.actor.{ReceiveTimeout, Actor, ActorLogging, Props}
 import akka.event.LoggingReceive
+
 import no.mesan.hipchatparse.rooms.RoomDirReader.{LastRoom, FoundRoom, BuildRooms}
 import no.mesan.hipchatparse.rooms.RoomWriter.RoomDone
 import no.mesan.hipchatparse.rooms._
@@ -29,6 +33,7 @@ class HipChatParseMain extends Actor with ActorLogging {
   override def receive: Receive = LoggingReceive{
 
     case Start(exportDir, resultDir) =>
+      context.setReceiveTimeout(5 seconds)
       writer ! ConfigValue(ActorNames.resultDir, resultDir)
       userReader ! BuildUserDB(exportDir + "/" + HipChatConfig.userFile)
       roomDirReader ! BuildRooms(exportDir + "/" + HipChatConfig.roomDir)
@@ -58,6 +63,10 @@ class HipChatParseMain extends Actor with ActorLogging {
 
     case TaskDone(task) =>
       log.debug(s"Trace: $task -- done")
+
+    case ReceiveTimeout =>
+      log.error(s"No action for too long -- terminated while waiting for $roomList")
+      context.system.shutdown()
   }
 }
 
