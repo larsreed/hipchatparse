@@ -46,3 +46,4 @@ yes...  e.g.
 
 * Akka-level tests...
 * alternative @-mentions
+* parsing the rooms list.json to obtain real names and filter private rooms
