@@ -5,13 +5,13 @@ import akka.event.LoggingReceive
 import no.mesan.hipchatparse.HipChatConfig._
 import no.mesan.hipchatparse.users.UserDb.AddUser
 import no.mesan.hipchatparse.users.UserParser.LastUser
-import no.mesan.hipchatparse.utils.FileIO
+import no.mesan.hipchatparse.utils.{NameHelper, FileIO}
 import no.mesan.hipchatparse.{Breakdown, HipChatConfig, TaskDone}
 import play.api.libs.json.{JsValue, Json}
 
 import scala.util.{Failure, Success, Try}
 
-/** Reads the user file. */
+/** Reads the room file. */
 class UserParser(master: ActorRef, userDb: ActorRef) extends Actor with ActorLogging {
   import no.mesan.hipchatparse.users.UserParser.BuildUserDB
 
@@ -27,28 +27,26 @@ class UserParser(master: ActorRef, userDb: ActorRef) extends Actor with ActorLog
         else for (user <- users.get ) userDb ! AddUser(user)
       }
       userDb ! LastUser // Signal end of list
-      master ! TaskDone("Read user JSON file")
+      master ! TaskDone("Read room JSON file")
   }
 }
 
-object UserParser  {
-  /** Start reading user file. */
+object UserParser extends NameHelper {
+  /** Start reading room file. */
   case class BuildUserDB(fileName: String)
-  /** Last user read from file. */
+  /** Last room read from file. */
   case object LastUser
 
   /** "Constructor" */
   def props(master: ActorRef, userDb: ActorRef) = Props(new UserParser(master, userDb))
-
-  private def unString(s: String)= s.substring(1).replaceFirst(".$", "" )
 
   /** Make a list of users from the JSON contents. */
   def jsonParse(contents: String): Try[List[User]] = {
     try {
       val json: JsValue = Json.parse(contents)
       val ids= (json \\ userIdUserKey ).map(v=> v.toString())
-      val mentions= (json \\ mentionUserKey ).map(v => unString(v.toString()))
-      val fullNames= (json \\ nameUserKey).map(v=> unString(v.toString()))
+      val mentions= (json \\ mentionUserKey ).map(v => washJson(v.toString()))
+      val fullNames= (json \\ nameUserKey).map(v=> washJson(v.toString()))
       Success(List(ids, mentions, fullNames).transpose.map(v=> User(v(n=0), Some(v(n=1)), v(n=2))))
     }
     catch {

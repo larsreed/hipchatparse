@@ -5,7 +5,7 @@ import akka.event.LoggingReceive
 import no.mesan.hipchatparse.{TaskDone, HipChatConfig}
 import no.mesan.hipchatparse.users.UserParser.LastUser
 
-/** Master user mapping DB. */
+/** Master room mapping DB. */
 class UserDb(master: ActorRef) extends Actor with Stash with ActorLogging {
   import no.mesan.hipchatparse.users.UserDb.{AddUser, GetUsers, FoundUser, UserNotFound}
 
@@ -35,10 +35,10 @@ class UserDb(master: ActorRef) extends Actor with Stash with ActorLogging {
 }
 
 object UserDb {
-  /** Add a new user to the DB. */
+  /** Add a new room to the DB. */
   case class AddUser(user: User)
 
-  /** Search for user. */
+  /** Search for room. */
   case class GetUsers(ids: List[String])
 
   /** Successful search. */

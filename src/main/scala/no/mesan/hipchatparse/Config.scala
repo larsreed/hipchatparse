@@ -4,10 +4,20 @@ package no.mesan.hipchatparse
 object Config {
   /** Line feed. */
   val LF= "\n"
+
+  /** Exclude private rooms. */
+  val excludePrivate= true
 }
 
 /** Names of actors and config variables. */
 object ActorNames {
+
+  /** Name of actor holding room mappings. */
+  val roomDb = "RoomDB"
+  /** Name of actor parsing room list. */
+  val roomListParser = "RoomListParser"
+  /** Name of actor parsing room list. */
+  val roomFilter = "RoomFilter"
   /** Name of actor holding user mappings. */
   val userDb = "UserDB"
   /** Name of main actor. */
@@ -20,9 +30,9 @@ object ActorNames {
   val roomFileReader = "RoomFileReader"
   /** Name of room file reader. */
   val roomParser = "RoomParser"
-  /** Name of user converter. */
+  /** Name of room converter. */
   val userConverter = "UserConverter"
-  /** Name of user mapping filter. */
+  /** Name of room mapping filter. */
   val userFilter = "UserFilter"
   /** Name of message exclusion. */
   val messageFilter = "UserFilter"
@@ -35,25 +45,26 @@ object ActorNames {
   val resultDir = "resultDir"
 }
 
-/** HipChat export layout.
- */
+/** HipChat export layout. */
 object HipChatConfig {
-  /** Name of user directory in export file. */
+  /** Name of room directory in export file. */
   val userDir = "users"
-  /** Name of user file in export file. */
+  /** Name of room file in export file. */
   val userFile = userDir + "/" + "list.json"
 
-  /** ID of api user. */
+  /** ID of api room. */
   val apiUser= """"api""""
 
   /** Name of room directory in export file. */
   val roomDir = "rooms"
+  /** Name of room file in export file. */
+  val roomFile = roomDir + "/" + "list.json"
 
-  /** Key in user file. */
+  /** Key in room file. */
   val userIdUserKey = "user_id"
-  /** Key in user file. */
+  /** Key in room file. */
   val mentionUserKey = "mention_name"
-  /** Key in user file. */
+  /** Key in room file. */
   val nameUserKey = "name"
 
   /** Key in room file. */
@@ -66,4 +77,11 @@ object HipChatConfig {
   val userIdRoomKey = "user_id"
   /** Key in room file. */
   val messageRoomKey = "message"
+
+  /** Key in room list file. */
+  val roomIdListKey = "room_id"
+  /** Key in room list file. */
+  val roomNameListKey = "name"
+  /** Key in room list file. */
+  val privateListKey = "is_private"
 }

@@ -1,7 +1,7 @@
 package no.mesan.hipchatparse.messages
 
 import no.mesan.hipchatparse.messages.MessageFilter._
-import no.mesan.hipchatparse.rooms.{Message, Room}
+import no.mesan.hipchatparse.rooms.Room
 import no.mesan.hipchatparse.users.User
 import org.junit.runner.RunWith
 import org.scalatest.FlatSpec
@@ -33,7 +33,7 @@ class MessageFilterSpec extends FlatSpec {
   }
 
   it should "null repeated username" in {
-    val testRoom= Room("Test", List(
+    val testRoom= Room("Test", None, List(
     Message(User("ID1", Some("x"), "Name"), Some("2015-08-19T06:32:52"), "Text"),
     Message(User("ID1", Some("x"), "Name"), Some("2015-08-20T06:32:52"), "More text"),
     Message(User("ID2", Some("y"), "Name"), Some("2015-08-21T06:32:52"), "Another text")))
@@ -46,7 +46,7 @@ class MessageFilterSpec extends FlatSpec {
   }
 
   it should "null repeated date" in {
-    val testRoom= Room("Test", List(
+    val testRoom= Room("Test", None, List(
     Message(User("ID1", Some("x"), "Name"), Some("2015-08-20T06:32:52"), "Text"),
     Message(User("ID2", Some("x"), "Name"), Some("2015-08-21T06:32:52"), "More text"),
     Message(User("ID3", Some("y"), "Name"), Some("2015-08-21T06:32:55"), "Another text")))

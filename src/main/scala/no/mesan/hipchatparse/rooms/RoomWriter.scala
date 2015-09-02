@@ -5,11 +5,11 @@ import java.nio.file.{Files, Paths}
 
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import akka.event.LoggingReceive
-import no.mesan.hipchatparse.{ActorNames, ConfigValue, TaskDone}
+import no.mesan.hipchatparse.{RoomDone, ActorNames, ConfigValue, TaskDone}
 
 /** Writes result. */
 class RoomWriter(master: ActorRef) extends Actor with ActorLogging {
-  import no.mesan.hipchatparse.rooms.RoomWriter.{RoomDone, WriteRoom}
+  import no.mesan.hipchatparse.rooms.RoomWriter.WriteRoom
 
   var baseDir= "."
 
@@ -29,8 +29,6 @@ class RoomWriter(master: ActorRef) extends Actor with ActorLogging {
 object RoomWriter {
   /** Write room data. */
   case class WriteRoom(room: Room, formatted: String)
-  /** Report a room being finished. */
-  case class RoomDone(roomName: String, numberOfLines: Int)
 
   /** "Constructor" */
   def props(master: ActorRef) = Props(new RoomWriter(master))

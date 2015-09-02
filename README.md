@@ -34,6 +34,21 @@ I have tried to make it fairly simple to change, e.g.
 * write to an API rather than file
 * etc
 
+There are several "pipes" that eventually merge:
+
+1. The main class tells the `RoomlistParser` to parse the 'rooms/list.json' file, which in turn sends definitions to the `RoomDb`.
+ On receipt of the LastRoom, it is ready to service the filter chain.
+2. The main class tells the `UserParser` to parse the 'users/list.json' file, which in turn sends definitions to the `UserDb`.
+ On receipt of the LastUser, it is ready to service the filter chain.
+3. The main class tells the `RoomDirReader` to list the subdirectories, sending a message to the
+ `RoomFileReader`for each directory, which in turn reads alle JSON files in that directory (chronologically), and sends the room definition to the filter chain.
+4. The first part of the filter chain is the `RoomFilter`, which by default (configurable) excludes private rooms (found by asking `RoomDb`), and looks up the real name of the room (directory names are somewhat mangled).
+ Then the rooms are sent to the `UserFilter`, which looks up users in the `UserDb` to get full names / mention names.
+ Next is the `MessageFilter` which excludes welcome messages, empty messages and messages from JIRA.
+5. The result from filtering is sent to `WikiRoomFormatter` to create formatted contents, followed by
+ `RoomWriter` to place the final result in output files (one for each room).
+
+
 ## Usage ##
 
 1. sbt assembly
@@ -46,6 +61,7 @@ lre = Lars Reed, Mesan AS
 
 ### History ###
 * v1 2015.08.31 lre Initial version
+* v2 2015.09.02 lre Reads room directory
 
 ### Caveats ###
 * Overwrites the result files without warning
@@ -55,4 +71,3 @@ yes...  e.g.
 
 * Akka-level tests...
 * alternative @-mentions
-* parsing the rooms list.json to obtain real names and filter private rooms

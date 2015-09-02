@@ -1,32 +1,32 @@
 package no.mesan.hipchatparse.messages
 
-import akka.actor.{Actor, ActorLogging, ActorRef, Props}
+import akka.actor._
 import akka.event.LoggingReceive
 import no.mesan.hipchatparse.TaskDone
-import no.mesan.hipchatparse.messages.MessageFilter.FilterRoomContents
+import no.mesan.hipchatparse.messages.MessageFilter.FilterRoom
+import no.mesan.hipchatparse.rooms.Room
 import no.mesan.hipchatparse.rooms.WikiRoomFormatter.FormatRoom
-import no.mesan.hipchatparse.rooms.{Message, Room}
 import no.mesan.hipchatparse.users.NoUser
 
 /** Discards unwanted messages. */
 class MessageFilter(master: ActorRef, formatter: ActorRef) extends Actor with ActorLogging {
 
   override def receive: Receive = LoggingReceive {
-    case FilterRoomContents(room) =>
+    case FilterRoom(room) =>
       val newList =
         MessageFilter.filterDuplicates(room.conversation.
           filter(msg => MessageFilter.okText(msg.text))).
           filter(msg=> msg.user.fullName!="JIRA").
           map {msg => Message(msg.user, msg.datestamp, MessageFilter.wash(msg.text))}
-      formatter ! FormatRoom(Room(room.name, newList))
+      formatter ! FormatRoom(room withConversation newList)
       master ! TaskDone(s"message filter for ${room.name}")
-      context.stop(self)
+      self ! PoisonPill
   }
 }
 
 object MessageFilter {
   /** Filter contents. */
-  case class FilterRoomContents(room: Room)
+  case class FilterRoom(room: Room)
 
   val ignored= List(
     "Welcome to Hipchat. You can @-mention me by typing @HipChat",
@@ -48,7 +48,7 @@ object MessageFilter {
     replaceAll("""\\n""", "\n"). // Handle inline line feeds
     replaceAll("(\\\n)+", "\n")
 
-  /** Blank repeated values for date and user. */
+  /** Blank repeated values for date and room. */
   def filterDuplicates(messages: List[Message]): List[Message] = {
     var lastUser = ""
     var lastDate= ""

@@ -31,7 +31,7 @@ object WikiRoomFormatter {
 
   /** Cleanup contents. */
   def wash(text: String): String = text.
-      replaceAll("[@](\\w+)\\b", "[~$1]"). // Create user refs from mentions
+      replaceAll("[@](\\w+)\\b", "[~$1]"). // Create room refs from mentions
       replaceAll("[|]", "\\\\|").
       replaceAll("(?ms)^\\s*/code\\s*(.*)", "{noformat}$1{noformat}").
       replaceAll("""\\"""", """"""").
