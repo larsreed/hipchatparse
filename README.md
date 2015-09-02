@@ -3,7 +3,7 @@ This little project:
 
 1. Reads the files in a HipChat export (must be unzipped, delete rooms that should not be included)
 2. Creates wiki markup formatted tables with the contents
-    * Deletes empty messages, welcome messages and messages from JIRA
+    * Deletes empty messages, welcome messages and messages from JIRA and GitHub
     * Replaces @name-references with [~name] -- assumes names in HipChat and Confluence are the same
     * Replaces /code with {noformat}...{noformat}
 3. Writes one .room-file for each room, to be inserted as wiki markup in Confluence
@@ -44,7 +44,7 @@ There are several "pipes" that eventually merge:
  `RoomFileReader`for each directory, which in turn reads alle JSON files in that directory (chronologically), and sends the room definition to the filter chain.
 4. The first part of the filter chain is the `RoomFilter`, which by default (configurable) excludes private rooms (found by asking `RoomDb`), and looks up the real name of the room (directory names are somewhat mangled).
  Then the rooms are sent to the `UserFilter`, which looks up users in the `UserDb` to get full names / mention names.
- Next is the `MessageFilter` which excludes welcome messages, empty messages and messages from JIRA.
+ Next is the `MessageFilter` which excludes welcome messages, empty messages and messages from JIRA and GitHub.
 5. The result from filtering is sent to `WikiRoomFormatter` to create formatted contents, followed by
  `RoomWriter` to place the final result in output files (one for each room).
 
@@ -71,3 +71,4 @@ yes...  e.g.
 
 * Akka-level tests...
 * alternative @-mentions
+* noformat-blocks should drop backslash-lf

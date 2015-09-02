@@ -21,9 +21,9 @@ class WikiRoomFormatter(master: ActorRef, writer: ActorRef) extends Actor with A
       }
       val tab2= tab1.grouped(500).toList
       val tab3= tab2.map(lst=> lst.mkString("\n") + "\n")
-      val res= "h2. " + room.name + LF + LF + tab3.mkString(LF) + LF
+      val res= "h2. " + room.fullName + LF + LF + tab3.mkString(LF) + LF
       writer ! WriteRoom(room, res)
-      master ! TaskDone(s"formatted room ${room.name}")
+      master ! TaskDone(s"formatted room ${room.fullName}")
   }
 }
 
