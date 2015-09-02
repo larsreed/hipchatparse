@@ -1,5 +1,7 @@
 package no.mesan.hipchatparse.rooms
 
+import java.util.regex.Pattern
+
 import akka.actor.{Props, Actor, ActorLogging, ActorRef}
 import akka.event.LoggingReceive
 import no.mesan.hipchatparse.{TaskDone, Config}
@@ -21,21 +23,31 @@ class WikiRoomFormatter(master: ActorRef, writer: ActorRef) extends Actor with A
       }
       val tab2= tab1.grouped(500).toList
       val tab3= tab2.map(lst=> lst.mkString("\n") + "\n")
-      val res= "h2. " + room.fullName + LF + LF + tab3.mkString(LF) + LF
+      val res= "h2. " + room.fullName.get + LF + LF + tab3.mkString(LF) + LF
       writer ! WriteRoom(room, res)
-      master ! TaskDone(s"formatted room ${room.fullName}")
+      master ! TaskDone(s"formatted room ${room.fullName.get}")
   }
 }
 
 object WikiRoomFormatter {
+  private def isOdd(i: Int): Boolean = (i%2)==1
+  private val noformat= "{noformat}"
 
   /** Cleanup contents. */
-  def wash(text: String): String = text.
-      replaceAll("[@](\\w+)\\b", "[~$1]"). // Create room refs from mentions
-      replaceAll("[|]", "\\\\|").
-      replaceAll("(?ms)^\\s*/code\\s*(.*)", "{noformat}$1{noformat}").
-      replaceAll("""\\"""", """"""").
-      replaceAll("\\\\[\n\r]+", " \\\\\\\\\n")
+  def wash(text: String): String = {
+    val washed= text
+      .replaceAll("""\\"""", """"""") // Replace extraneous quoting
+      .replaceAll("(?ms)^\\s*/code\\s+(\\S.*)", noformat + "$1" + noformat) // quote code
+      .replaceAll("\\\\(\r?)[\n]", " \\\\\\\\\n") // double quote line feeds within strings
+    val splat= washed.split(Pattern.quote(noformat))
+    val res= (for (i <- 0 to splat.size-1) yield {
+      if (isOdd(i)) splat(i).replaceAll(" *\\\\\\\\[\n\r]+", "\n") // Remove line quotes in code
+      else splat(i)
+        .replaceAll("[|{}]", "\\\\$0")       // quote braces and bars
+        .replaceAll("[@](\\w+)\\b", "[~$1]") // Create user refs from mentions
+    }).mkString(noformat)
+    if (washed.endsWith(noformat)) res + noformat else res
+  }
 
   /** Format room data. */
   case class FormatRoom(room: Room)

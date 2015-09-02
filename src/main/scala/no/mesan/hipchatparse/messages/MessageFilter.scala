@@ -15,10 +15,10 @@ class MessageFilter(master: ActorRef, formatter: ActorRef) extends Actor with Ac
     case FilterRoom(room) =>
       val newList =
         MessageFilter.filterDuplicates(room.conversation.
-          filter(msg => MessageFilter.okText(msg.text))).
+          filter(msg => MessageFilter.okText(msg.text)).
           filter(msg=> msg.user.fullName!="JIRA").
           filter(msg=> msg.user.fullName!="GitHub").
-          map {msg => Message(msg.user, msg.datestamp, MessageFilter.wash(msg.text))}
+          map {msg => Message(msg.user, msg.datestamp, MessageFilter.wash(msg.text))})
       formatter ! FormatRoom(room withConversation newList)
       master ! TaskDone(s"message filter for ${room.name}")
       self ! PoisonPill
