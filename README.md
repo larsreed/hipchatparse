@@ -53,6 +53,7 @@ There are several "pipes" that eventually merge:
 
 1. sbt assembly
 2. java -jar &lt;....&gt;/hipchatparse.jar baseDir [resultDir]
+  (default for resultDir is baseDir)
 
 ## Authors ##
 lre = Lars Reed, Mesan AS
@@ -71,4 +72,3 @@ yes...  e.g.
 
 * Akka-level tests...
 * alternative @-mentions
-* noformat-blocks should drop backslash-lf
