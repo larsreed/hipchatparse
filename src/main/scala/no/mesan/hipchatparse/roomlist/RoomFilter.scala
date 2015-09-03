@@ -16,12 +16,14 @@ class RoomFilter(master: ActorRef, userDb:ActorRef, roomDb: ActorRef, formatter:
 
   var currentRoom: Room= _
 
-  override def receive: Receive = LoggingReceive {
-    case FilterRoom(room) =>
-      currentRoom= room
-      roomDb ! GetRoom(room.name)
-      context become waiting
-  }
+  override def receive: Receive = ready
+
+  val ready: Receive = LoggingReceive {
+      case FilterRoom(room) =>
+        currentRoom= room
+        roomDb ! GetRoom(room.name)
+        context become waiting
+    }
 
   val waiting: Receive = LoggingReceive {
     case FilterRoom(room) =>
@@ -31,7 +33,7 @@ class RoomFilter(master: ActorRef, userDb:ActorRef, roomDb: ActorRef, formatter:
       log.error(s"No definition for room $id")
       master ! RoomDone(id, 0)
       unstashAll()
-      context become receive
+      context become ready
 
     case FoundRoom(id, roomDef) =>
       if ( roomDef.isPublic || !Config.excludePrivate ) {
@@ -46,7 +48,7 @@ class RoomFilter(master: ActorRef, userDb:ActorRef, roomDb: ActorRef, formatter:
         master ! TaskDone(s"filtering room $id (excluded)")
       }
       unstashAll()
-      context become receive
+      context become ready
   }
 }
 

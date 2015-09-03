@@ -53,7 +53,7 @@ object HipChatConfig {
   val userFile = userDir + "/" + "list.json"
 
   /** ID of api room. */
-  val apiUser= """"api""""
+  val apiUser= "api"
 
   /** Name of room directory in export file. */
   val roomDir = "rooms"

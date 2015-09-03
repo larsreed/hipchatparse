@@ -16,7 +16,7 @@ import no.mesan.hipchatparse.users.{UserParser, UserDb}
 
 /** Main actor -- starts and ends the show. */
 class HipChatParseMain extends Actor with ActorLogging {
-  import HipChatParseMain.{Start, CheckIfDone}
+  import HipChatParseMain.{Start, Stop, CheckIfDone}
 
   private val userDb= context.actorOf(UserDb.props(self), ActorNames.userDb)
   private val roomDb= context.actorOf(RoomlistDb.props(self), ActorNames.roomDb)
@@ -32,22 +32,31 @@ class HipChatParseMain extends Actor with ActorLogging {
   // instantiated per room messageFilter
 
   private var roomList = Set.empty[String]
-  private var canExit= false // to avoid stopping before we have started (not likely)
+  private var canExit = false // to avoid stopping before we have started (not likely)
+  private var messagesWritten = 0
 
   override def receive: Receive = LoggingReceive{
 
     case Start(exportDir, resultDir) =>
-      context.setReceiveTimeout(5 seconds)
+      log.debug("Starting")
+      context.setReceiveTimeout(5 seconds) // Break out if hanging
+      writer ! ConfigValue(ActorNames.resultDir, resultDir)
+
+      // Build DBs
       userReader ! BuildUserDB(exportDir + "/" + HipChatConfig.userFile)
       roomListParser ! BuildRoomDb(exportDir + "/" + HipChatConfig.roomFile)
-      writer ! ConfigValue(ActorNames.resultDir, resultDir)
+      // The main pipe starts here
       roomDirReader ! BuildRooms(exportDir + "/" + HipChatConfig.roomDir)
+
+    case Stop =>
+      context.system.shutdown()
 
     case FoundRoom(name) =>
       roomList = roomList + name
 
     case RoomDone(name, count) =>
       roomList = roomList - name
+      messagesWritten  += count
       println(s"$name :: $count")
       self ! CheckIfDone
 
@@ -56,25 +65,25 @@ class HipChatParseMain extends Actor with ActorLogging {
       self ! CheckIfDone
 
     case CheckIfDone =>
-      if (roomList.isEmpty) {
-        if (canExit) {
-          log.debug("Exiting")
-          context.system.shutdown()
+      val res=
+        if (roomList.nonEmpty) s"waiting for $roomList..."
+        else if (canExit) {
+            self ! Stop
+            s"Exiting, $messagesWritten messages written"
         }
-        else log.debug("roomList is empty, but cannot exit")
-      }
-      else log.debug(s"waiting for $roomList...")
+        else "roomList is empty, but cannot exit"
+      log.debug(res)
 
     case Breakdown(err) =>
       log.error("FATAL: " + err)
-      context.system.shutdown()
+      self ! Stop
 
     case TaskDone(task) =>
       log.debug(s"Trace: $task -- done")
 
     case ReceiveTimeout =>
       log.error(s"No action for too long -- terminated while waiting for $roomList")
-      context.system.shutdown()
+      self ! Stop
   }
 }
 
@@ -82,7 +91,10 @@ object HipChatParseMain {
   /** Get running. */
   case class Start(baseDir: String, resultDir: String)
 
-  /** Main object -- check if last entry processed. */
+  /** Done! */
+  case object Stop
+
+  /** Check if last entry processed. */
   case object CheckIfDone
 
   /** "Constructor" */

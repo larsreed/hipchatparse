@@ -13,7 +13,7 @@ import no.mesan.hipchatparse.utils.NameHelper
 /** Adds room information to messages. */
 class UserFilter(master: ActorRef, userDb: ActorRef, formatter: ActorRef) extends Actor
   with ActorLogging with NameHelper {
-  import no.mesan.hipchatparse.users.UserFilter.FilterRoomUser
+  import UserFilter.FilterRoomUser
 
   var currentRoom: Room= _
   var missingIds: Set[String]= _

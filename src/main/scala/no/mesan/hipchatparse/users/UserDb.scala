@@ -5,20 +5,22 @@ import akka.event.LoggingReceive
 import no.mesan.hipchatparse.{TaskDone, HipChatConfig}
 import no.mesan.hipchatparse.users.UserParser.LastUser
 
-/** Master room mapping DB. */
+/** Master user mapping DB. */
 class UserDb(master: ActorRef) extends Actor with Stash with ActorLogging {
-  import no.mesan.hipchatparse.users.UserDb.{AddUser, GetUsers, FoundUser, UserNotFound}
+  import UserDb.{AddUser, GetUsers, FoundUser, UserNotFound}
 
   private var userMap= Map.empty[String, User]
 
   override def receive: Receive = LoggingReceive {
     case AddUser(user) =>
       userMap += (user.ID -> user)
+
     case LastUser =>
       master ! TaskDone("building userDB")
       unstashAll()
-      context.become(active)
-    case GetUsers(_) =>
+      context become active
+
+    case GetUsers =>
       stash()
   }
 
@@ -26,9 +28,8 @@ class UserDb(master: ActorRef) extends Actor with Stash with ActorLogging {
     case GetUsers(ids) =>
       for (id <- ids) {
         val res = userMap.get(id)
-        val msg = if (res.isDefined) FoundUser(id, res.get)
-                  else UserNotFound(id)
-        sender ! msg
+        sender ! res.map(FoundUser(id, _))
+                    .getOrElse(UserNotFound(id))
         if (res.isEmpty && !(id==HipChatConfig.apiUser)) log.debug(s"ID $id unknown")
       }
   }

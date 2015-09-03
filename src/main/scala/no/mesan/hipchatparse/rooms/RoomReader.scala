@@ -15,9 +15,7 @@ class RoomDirReader(master: ActorRef, fileReader: ActorRef) extends Actor
   override def receive: Receive = LoggingReceive {
     case BuildRooms(baseDir) =>
       val dirs= FileIO.scanDir(baseDir).dirs.sorted
-      if (dirs.isEmpty) {
-        master ! Breakdown(s"no rooms in directory $baseDir")
-      }
+      if (dirs.isEmpty) master ! Breakdown(s"no rooms in directory $baseDir")
       else {
         for (dir <- dirs) {
           master ! FoundRoom(stripPath(dir))
@@ -55,12 +53,9 @@ class RoomFileReader(master: ActorRef, roomParser: ActorRef) extends Actor
         master ! RoomDone(roomName, 0)
       }
       else {
-        var jsonList= List.empty[String]
-        for (file <- files) {
-          val contents= FileIO.fromFile(file)
-          contents.foreach(s=> jsonList= s.replaceAll("[\r\u000A]", "") :: jsonList)
-        }
-        roomParser ! MakeRoom(roomName, jsonList)
+        val jsonList= for {file <- files
+             s <- FileIO.fromFile(file)} yield s.replaceAll("[\r\u000A]", "")
+        roomParser ! MakeRoom(roomName, jsonList.toList.reverse)
         master ! TaskDone(s"read room $roomName")
       }
   }

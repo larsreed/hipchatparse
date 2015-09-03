@@ -17,16 +17,14 @@ class RoomlistParser(master: ActorRef, roomDb: ActorRef) extends Actor with Acto
   override def receive: Receive = LoggingReceive {
     case BuildRoomDb(fileName) =>
       val contents= FileIO.fromFile(fileName)
-      if (contents.isEmpty) {
-        sender ! Breakdown(s"cannot open room directory $fileName")
-      }
+      if (contents.isEmpty) sender ! Breakdown(s"cannot open room directory $fileName")
       else {
         val rooms= RoomlistParser.jsonParse(contents.get)
         if (rooms.isFailure) sender ! Breakdown(s"cannot parse room file $fileName, error: ${rooms.failed}")
         else for (room <- rooms.get ) roomDb ! AddRoom(room)
       }
       roomDb ! LastRoom // Signal end of list
-      master ! TaskDone("Read room JSON file")
+      master ! TaskDone("Read roomlist JSON file")
   }
 }
 
@@ -39,8 +37,7 @@ object RoomlistParser extends NameHelper {
   /** "Constructor" */
   def props(master: ActorRef, roomDb: ActorRef) = Props(new RoomlistParser(master, roomDb))
 
-  /** Make a list of users from the JSON contents. */
-  //noinspection ZeroIndexToHead
+  /** Make a list of users from the JSON contents. */  //noinspection ZeroIndexToHead
   def jsonParse(contents: String): Try[List[RoomDef]] = {
     try {
       val json: JsValue = Json.parse(contents)
@@ -50,8 +47,7 @@ object RoomlistParser extends NameHelper {
       Success(List(ids, names, privates).transpose.map(v=> RoomDef(v(0), v(1), v(2))))
     }
     catch {
-      case e:Throwable =>
-        Failure(e)
+      case e:Throwable => Failure(e)
     }
   }
 }

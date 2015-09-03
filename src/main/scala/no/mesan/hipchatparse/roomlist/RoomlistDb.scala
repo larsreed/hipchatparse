@@ -4,7 +4,6 @@ import akka.actor._
 import akka.event.LoggingReceive
 import no.mesan.hipchatparse.TaskDone
 import no.mesan.hipchatparse.roomlist.RoomlistParser.LastRoom
-import no.mesan.hipchatparse.rooms.Room
 import no.mesan.hipchatparse.utils.NameHelper
 
 /** Master room mapping DB. */
@@ -16,20 +15,21 @@ class RoomlistDb(master: ActorRef) extends Actor with Stash with ActorLogging wi
   override def receive: Receive = LoggingReceive {
     case AddRoom(room) =>
       roomMap += (room.id -> room)
+
     case LastRoom =>
       master ! TaskDone("building roomDB")
       unstashAll()
-      context.become(active)
+      context become active
+
     case GetRoom(_) =>
       stash()
   }
 
-  val active: Actor.Receive = LoggingReceive {
+  val active: Receive = LoggingReceive {
     case GetRoom(id) =>
       val res = roomMap.get(dirMap(id))
-      val msg = if (res.isDefined) FoundRoom(id, res.get)
-                else RoomNotFound(id)
-      sender ! msg
+      sender ! res.map(FoundRoom(id, _))
+                  .getOrElse(RoomNotFound(id))
       if (res.isEmpty) log.warning(s"ID $id unknown")
   }
 }

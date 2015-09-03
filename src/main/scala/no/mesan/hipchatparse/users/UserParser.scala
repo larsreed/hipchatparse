@@ -6,12 +6,12 @@ import no.mesan.hipchatparse.HipChatConfig._
 import no.mesan.hipchatparse.users.UserDb.AddUser
 import no.mesan.hipchatparse.users.UserParser.LastUser
 import no.mesan.hipchatparse.utils.{NameHelper, FileIO}
-import no.mesan.hipchatparse.{Breakdown, HipChatConfig, TaskDone}
+import no.mesan.hipchatparse.{Breakdown, TaskDone}
 import play.api.libs.json.{JsValue, Json}
 
 import scala.util.{Failure, Success, Try}
 
-/** Reads the room file. */
+/** Reads the user file. */
 class UserParser(master: ActorRef, userDb: ActorRef) extends Actor with ActorLogging {
   import no.mesan.hipchatparse.users.UserParser.BuildUserDB
 
@@ -50,8 +50,7 @@ object UserParser extends NameHelper {
       Success(List(ids, mentions, fullNames).transpose.map(v=> User(v(n=0), Some(v(n=1)), v(n=2))))
     }
     catch {
-      case e:Throwable =>
-        Failure(e)
+      case e:Throwable => Failure(e)
     }
   }
 }

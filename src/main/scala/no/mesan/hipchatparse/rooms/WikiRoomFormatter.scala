@@ -10,7 +10,7 @@ import Config._
 
 /** Formats room content for output. Could be replaced for different outputs. */
 class WikiRoomFormatter(master: ActorRef, writer: ActorRef) extends Actor with ActorLogging {
-  import no.mesan.hipchatparse.rooms.WikiRoomFormatter.FormatRoom
+  import WikiRoomFormatter.FormatRoom
 
   override def receive: Receive = LoggingReceive {
     case FormatRoom(room) =>

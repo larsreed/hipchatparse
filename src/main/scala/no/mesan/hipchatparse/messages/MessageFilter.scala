@@ -11,17 +11,17 @@ import no.mesan.hipchatparse.users.NoUser
 /** Discards unwanted messages. */
 class MessageFilter(master: ActorRef, formatter: ActorRef) extends Actor with ActorLogging {
 
+  private val ignoredUsers=List("JIRA", "GitHub")
+
   override def receive: Receive = LoggingReceive {
     case FilterRoom(room) =>
-      val newList =
-        MessageFilter.filterDuplicates(room.conversation.
-          filter(msg => MessageFilter.okText(msg.text)).
-          filter(msg=> msg.user.fullName!="JIRA").
-          filter(msg=> msg.user.fullName!="GitHub").
-          map {msg => Message(msg.user, msg.datestamp, MessageFilter.wash(msg.text))})
+      val newList = MessageFilter.filterDuplicates(room.conversation
+          .filter(msg => MessageFilter.okText(msg.text))
+          .filter(msg => !ignoredUsers.contains(msg.user.fullName))
+          .map{msg => Message(msg.user, msg.datestamp, MessageFilter.wash(msg.text))})
       formatter ! FormatRoom(room withConversation newList)
       master ! TaskDone(s"message filter for ${room.name}")
-      self ! PoisonPill
+      self ! PoisonPill // One for each instance, time to die
   }
 }
 
@@ -29,20 +29,18 @@ object MessageFilter {
   /** Filter contents. */
   case class FilterRoom(room: Room)
 
-  val ignored= List(
-    "Welcome to Hipchat. You can @-mention me by typing @HipChat",
-    "You can ask me about:.*HipChat"
-  )
-
   /** "Constructor" */
   def props(master: ActorRef, formatter: ActorRef) = Props(new MessageFilter(master, formatter))
 
+  private val ignoredText= List(
+    ".*Welcome to Hipchat. You can @-mention me by typing @HipChat.*",
+    ".*You can ask me about:.*HipChat.*",
+    "^\\s*$",
+    "^\\s*@HipChat\\s*$"
+  )
+
   /** Filter unwanted texts. */
-  def okText(text: String): Boolean = {
-    for (pattern <- ignored)
-      if (text.matches(s".*$pattern.*") || text.matches("^\\s*$") || text.matches("^\\s*@HipChat\\s*$")) return false
-    true
-  }
+  def okText(text: String): Boolean = ignoredText.forall(pattern => !text.matches(pattern))
 
   /** Convert text in messages. */
   def wash(s: String): String = s.

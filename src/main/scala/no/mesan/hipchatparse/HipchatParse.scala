@@ -13,7 +13,7 @@ object HipchatParse {
     System.exit(exitCode)
   }
 
-  def err(exitCode: Int, msg: String) = {
+  def err(exitCode: Int, msg: String) {
     println(msg)
     System.exit(exitCode)
   }
@@ -30,6 +30,4 @@ object HipchatParse {
     val mainActor= system.actorOf(HipChatParseMain.props())
     mainActor ! Start(baseDir, resultDir)
   }
-
-
 }

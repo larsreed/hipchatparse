@@ -19,16 +19,11 @@ class RoomParser(master: ActorRef, filter: ActorRef) extends Actor
 
   override def receive: Receive = LoggingReceive {
     case MakeRoom(name, list) =>
-      val shortName= makeActorSuffix(name)
-      var res= List.empty[Message]
-      for (text <- list) {
-        val parsed= RoomParser.jsonParse(text)
-        if (parsed.isFailure) {
-          val err= s"cannot parse $name -- " // $text
-          parsed.failed.map(log.error(_, err))
-        }
-        else res = res ++ parsed.get
-      }
+      val parsed= list.map(s=> RoomParser.jsonParse(s))
+      parsed.filter(_.isFailure).foreach(err=> err.failed.map(log.error(_, s"cannot parse $name")))
+      val res= parsed
+        .filter(_.isSuccess)
+        .foldLeft(List.empty[Message])((lst, msg)=> lst ++ msg.get)
       if (res.isEmpty) {
         log.warning(s"$name has no content")
         master ! RoomDone(name, 0)
@@ -48,7 +43,7 @@ object RoomParser extends NameHelper {
   def props(master: ActorRef, filter: ActorRef) = Props(new RoomParser(master, filter))
 
 
-  /** Make a list of messages from the JSON contents. */
+  /** Make a list of messages from the JSON contents. */ //noinspection ZeroIndexToHead
   def jsonParse(contents: String): Try[List[Message]] = {
     try {
       val json: JsValue = Json.parse(contents)
@@ -58,13 +53,11 @@ object RoomParser extends NameHelper {
       val authorIds= from.map(v => (v \ userIdRoomKey).get.toString())
       val messages= (json \\ messageRoomKey).map(v=> washJson(v.toString()))
       Success(List(dates, authorIds, authorNames, messages).transpose.map {
-        v => //noinspection ZeroIndexToHead
-          Message (User(ID=v(1), fullName=v(2)), Some(v(0)), v(3))
+        v => Message(User(ID=v(1), fullName=v(2)), Some(v(0)), v(3))
       })
     }
     catch {
-      case e:Throwable =>
-        Failure(e)
+      case e:Throwable => Failure(e)
     }
   }
 }
