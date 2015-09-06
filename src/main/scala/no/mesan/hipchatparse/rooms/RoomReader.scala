@@ -9,7 +9,7 @@ import no.mesan.hipchatparse.utils.{FileIO, NameHelper}
 /** Scans room directory. */
 class RoomDirReader(master: ActorRef, fileReader: ActorRef) extends Actor
   with ActorLogging with NameHelper {
-  import no.mesan.hipchatparse.rooms.RoomDirReader.{BuildRooms, FoundRoom}
+  import no.mesan.hipchatparse.rooms.RoomDirReader.{BuildRooms, RoomDiscovered}
   import no.mesan.hipchatparse.rooms.RoomFileReader.ReadRoom
 
   override def receive: Receive = LoggingReceive {
@@ -18,7 +18,7 @@ class RoomDirReader(master: ActorRef, fileReader: ActorRef) extends Actor
       if (dirs.isEmpty) master ! Breakdown(s"no rooms in directory $baseDir")
       else {
         for (dir <- dirs) {
-          master ! FoundRoom(stripPath(dir))
+          master ! RoomDiscovered(stripPath(dir))
           fileReader ! ReadRoom(dir)
         }
       }
@@ -31,7 +31,7 @@ object RoomDirReader {
   /** Start scanning room root directory. */
   case class BuildRooms(dirName: String)
   /** Report a new room. */
-  case class FoundRoom(roomName: String)
+  case class RoomDiscovered(roomName: String)
 
   /** "Constructor" */
   def props(master: ActorRef, fileReader: ActorRef) = Props(new RoomDirReader(master, fileReader))
