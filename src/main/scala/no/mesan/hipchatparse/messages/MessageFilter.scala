@@ -2,10 +2,9 @@ package no.mesan.hipchatparse.messages
 
 import akka.actor._
 import akka.event.LoggingReceive
-import no.mesan.hipchatparse.TaskDone
+import no.mesan.hipchatparse.{FormatRoom, TaskDone}
 import no.mesan.hipchatparse.messages.MessageFilter.FilterRoom
 import no.mesan.hipchatparse.rooms.Room
-import no.mesan.hipchatparse.rooms.WikiRoomFormatter.FormatRoom
 import no.mesan.hipchatparse.users.NoUser
 
 /** Discards unwanted messages. */

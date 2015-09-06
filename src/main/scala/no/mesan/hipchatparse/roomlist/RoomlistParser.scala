@@ -5,14 +5,14 @@ import akka.event.LoggingReceive
 import no.mesan.hipchatparse.HipChatConfig._
 import no.mesan.hipchatparse.roomlist.RoomlistDb.AddRoom
 import no.mesan.hipchatparse.utils.{NameHelper, FileIO}
-import no.mesan.hipchatparse.{Breakdown, TaskDone}
+import no.mesan.hipchatparse.{LastRoom, Breakdown, TaskDone}
 import play.api.libs.json.{JsValue, Json}
 
 import scala.util.{Failure, Success, Try}
 
 /** Reads the room file. */
 class RoomlistParser(master: ActorRef, roomDb: ActorRef) extends Actor with ActorLogging {
-  import RoomlistParser.{BuildRoomDb, LastRoom}
+  import RoomlistParser.BuildRoomDb
 
   override def receive: Receive = LoggingReceive {
     case BuildRoomDb(fileName) =>
@@ -31,8 +31,6 @@ class RoomlistParser(master: ActorRef, roomDb: ActorRef) extends Actor with Acto
 object RoomlistParser extends NameHelper {
   /** Start reading room file. */
   case class BuildRoomDb(fileName: String)
-  /** Last room read from file. */
-  case object LastRoom
 
   /** "Constructor" */
   def props(master: ActorRef, roomDb: ActorRef) = Props(new RoomlistParser(master, roomDb))

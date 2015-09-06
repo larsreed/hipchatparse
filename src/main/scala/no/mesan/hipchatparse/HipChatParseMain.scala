@@ -9,7 +9,7 @@ import scala.language.postfixOps
 import akka.actor.{ReceiveTimeout, Actor, ActorLogging, Props}
 import akka.event.LoggingReceive
 
-import no.mesan.hipchatparse.rooms.RoomDirReader.{LastRoom, FoundRoom, BuildRooms}
+import no.mesan.hipchatparse.rooms.RoomDirReader.{FoundRoom, BuildRooms}
 import no.mesan.hipchatparse.rooms._
 import no.mesan.hipchatparse.users.UserParser.BuildUserDB
 import no.mesan.hipchatparse.users.{UserParser, UserDb}

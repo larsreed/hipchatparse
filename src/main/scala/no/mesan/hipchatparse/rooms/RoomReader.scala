@@ -2,14 +2,14 @@ package no.mesan.hipchatparse.rooms
 
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import akka.event.LoggingReceive
-import no.mesan.hipchatparse.{RoomDone, Breakdown, TaskDone}
+import no.mesan.hipchatparse.{LastRoom, RoomDone, Breakdown, TaskDone}
 import no.mesan.hipchatparse.rooms.RoomParser.MakeRoom
 import no.mesan.hipchatparse.utils.{FileIO, NameHelper}
 
 /** Scans room directory. */
 class RoomDirReader(master: ActorRef, fileReader: ActorRef) extends Actor
   with ActorLogging with NameHelper {
-  import no.mesan.hipchatparse.rooms.RoomDirReader.{BuildRooms, FoundRoom, LastRoom}
+  import no.mesan.hipchatparse.rooms.RoomDirReader.{BuildRooms, FoundRoom}
   import no.mesan.hipchatparse.rooms.RoomFileReader.ReadRoom
 
   override def receive: Receive = LoggingReceive {
@@ -32,8 +32,6 @@ object RoomDirReader {
   case class BuildRooms(dirName: String)
   /** Report a new room. */
   case class FoundRoom(roomName: String)
-  /** Report the room scan being over. */
-  case object LastRoom
 
   /** "Constructor" */
   def props(master: ActorRef, fileReader: ActorRef) = Props(new RoomDirReader(master, fileReader))

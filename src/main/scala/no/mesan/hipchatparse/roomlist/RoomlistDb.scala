@@ -2,8 +2,7 @@ package no.mesan.hipchatparse.roomlist
 
 import akka.actor._
 import akka.event.LoggingReceive
-import no.mesan.hipchatparse.TaskDone
-import no.mesan.hipchatparse.roomlist.RoomlistParser.LastRoom
+import no.mesan.hipchatparse.{LastRoom, TaskDone}
 import no.mesan.hipchatparse.utils.NameHelper
 
 /** Master room mapping DB. */

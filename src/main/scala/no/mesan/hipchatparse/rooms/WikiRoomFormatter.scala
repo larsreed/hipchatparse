@@ -4,13 +4,12 @@ import java.util.regex.Pattern
 
 import akka.actor.{Props, Actor, ActorLogging, ActorRef}
 import akka.event.LoggingReceive
-import no.mesan.hipchatparse.{TaskDone, Config}
+import no.mesan.hipchatparse.{FormatRoom, TaskDone, Config}
 import no.mesan.hipchatparse.rooms.RoomWriter.WriteRoom
 import Config._
 
 /** Formats room content for output. Could be replaced for different outputs. */
 class WikiRoomFormatter(master: ActorRef, writer: ActorRef) extends Actor with ActorLogging {
-  import WikiRoomFormatter.FormatRoom
 
   override def receive: Receive = LoggingReceive {
     case FormatRoom(room) =>
@@ -48,9 +47,6 @@ object WikiRoomFormatter {
     }).mkString(noformat)
     if (washed.endsWith(noformat)) res + noformat else res
   }
-
-  /** Format room data. */
-  case class FormatRoom(room: Room)
 
   /** "Constructor" */
   def props(master: ActorRef, writer: ActorRef) = Props(new WikiRoomFormatter(master, writer))
