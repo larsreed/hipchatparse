@@ -11,7 +11,7 @@ import no.mesan.hipchatparse.users.UserDb.{GetUsers, FoundUser, UserNotFound}
 import no.mesan.hipchatparse.utils.NameHelper
 
 /** Adds room information to messages. */
-class UserFilter(master: ActorRef, userDb: ActorRef, formatter: ActorRef) extends Actor
+class UserFilter(master: ActorRef, userDb: ActorRef, formatters: List [ActorRef]) extends Actor
   with ActorLogging with NameHelper {
   import UserFilter.FilterRoomUser
 
@@ -48,7 +48,7 @@ class UserFilter(master: ActorRef, userDb: ActorRef, formatter: ActorRef) extend
           if (userMap contains msg.user.ID) Message(userMap(msg.user.ID).get, msg.datestamp, msg.text)
           else msg
         val shortName= makeActorSuffix(currentRoom.name)
-        val next = context.actorOf(MessageFilter.props(master, formatter), s"${ActorNames.messageFilter}-$shortName")
+        val next = context.actorOf(MessageFilter.props(master, formatters), s"${ActorNames.messageFilter}-$shortName")
         next ! FilterRoom(currentRoom withConversation newList)
         master ! TaskDone(s"user filter for ${currentRoom.name}")
         context become doneWorking
@@ -61,6 +61,6 @@ object UserFilter {
   case class FilterRoomUser(room: Room)
 
   /** "Constructor" */
-  def props(master: ActorRef, userDb: ActorRef, formatter: ActorRef) =
-    Props(new UserFilter(master, userDb, formatter))
+  def props(master: ActorRef, userDb: ActorRef, formatters: List[ActorRef]) =
+    Props(new UserFilter(master, userDb, formatters))
 }

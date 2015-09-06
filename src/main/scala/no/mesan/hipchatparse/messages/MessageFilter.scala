@@ -8,7 +8,7 @@ import no.mesan.hipchatparse.rooms.Room
 import no.mesan.hipchatparse.users.NoUser
 
 /** Discards unwanted messages. */
-class MessageFilter(master: ActorRef, formatter: ActorRef) extends Actor with ActorLogging {
+class MessageFilter(master: ActorRef, formatters: List[ActorRef]) extends Actor with ActorLogging {
 
   private val ignoredUsers=List("JIRA", "GitHub")
 
@@ -18,7 +18,8 @@ class MessageFilter(master: ActorRef, formatter: ActorRef) extends Actor with Ac
           .filter(msg => MessageFilter.okText(msg.text))
           .filter(msg => !ignoredUsers.contains(msg.user.fullName))
           .map{msg => Message(msg.user, msg.datestamp, MessageFilter.wash(msg.text))})
-      formatter ! FormatRoom(room withConversation newList)
+      val newRoom= room withConversation newList
+      formatters foreach { _ ! FormatRoom(newRoom)}
       master ! TaskDone(s"message filter for ${room.name}")
       self ! PoisonPill // One for each instance, time to die
   }
@@ -29,7 +30,7 @@ object MessageFilter {
   case class FilterRoom(room: Room)
 
   /** "Constructor" */
-  def props(master: ActorRef, formatter: ActorRef) = Props(new MessageFilter(master, formatter))
+  def props(master: ActorRef, formatters: List[ActorRef]) = Props(new MessageFilter(master, formatters))
 
   private val ignoredText= List(
     ".*Welcome to Hipchat. You can @-mention me by typing @HipChat.*",

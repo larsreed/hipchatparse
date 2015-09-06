@@ -10,7 +10,7 @@ import no.mesan.hipchatparse.utils.NameHelper
 import no.mesan.hipchatparse.{TaskDone, ActorNames, Config, RoomDone}
 
 /** Filter private rooms, set correct names. */
-class RoomFilter(master: ActorRef, userDb:ActorRef, roomDb: ActorRef, formatter: ActorRef) extends Actor
+class RoomFilter(master: ActorRef, userDb:ActorRef, roomDb: ActorRef, formatters: List[ActorRef]) extends Actor
   with Stash with ActorLogging with NameHelper {
   import RoomFilter.FilterRoom
 
@@ -38,7 +38,7 @@ class RoomFilter(master: ActorRef, userDb:ActorRef, roomDb: ActorRef, formatter:
     case FoundRoom(id, roomDef) =>
       if ( roomDef.isPublic || !Config.excludePrivate ) {
         val shortName= makeActorSuffix(id)
-        val next = context.actorOf(UserFilter.props(master, userDb, formatter), s"${ActorNames.messageFilter}-$shortName")
+        val next = context.actorOf(UserFilter.props(master, userDb, formatters), s"${ActorNames.messageFilter}-$shortName")
         next ! FilterRoomUser(currentRoom.withFullName(roomDef.name))
         master ! TaskDone(s"filtering room $id (included)")
       }
@@ -57,6 +57,6 @@ object RoomFilter {
   case class FilterRoom(room: Room)
 
   /** "Constructor" */
-  def props(master: ActorRef, userDb: ActorRef, roomDb: ActorRef, formatter: ActorRef) =
-    Props(new RoomFilter(master, userDb, roomDb, formatter))
+  def props(master: ActorRef, userDb: ActorRef, roomDb: ActorRef, formatters: List[ActorRef]) =
+    Props(new RoomFilter(master, userDb, roomDb, formatters))
 }
