@@ -11,9 +11,9 @@ trait NameHelper {
   /** Map room name to room dir name. */
   def dirMap(roomName: String): String= roomName.replaceAll("[:/\\\\]", "_").trim
 
-  val cRange= (('A' to 'Z') ++ ('a' to 'z') ++ ('0' to '9')).toSet + '_'
   /** Create HTML ID from name. */
-  def name2id(roomName: String): String= roomName.filter(cRange.contains(_))
+  def name2id(roomName: String): String=
+    roomName.filter(((('A' to 'Z') ++ ('a' to 'z') ++ ('0' to '9')).toSet + '_').contains)
 
   /** Make a (hopefully) unique, valid actor name suffix. */
   def makeActorSuffix(s: String): String =

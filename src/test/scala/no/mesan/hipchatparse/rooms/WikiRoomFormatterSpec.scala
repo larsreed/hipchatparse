@@ -1,23 +1,24 @@
 package no.mesan.hipchatparse.rooms
 
 import org.junit.runner.RunWith
-import org.scalatest.FlatSpec
+import org.scalatest.{Matchers, FlatSpec}
 import org.scalatest.junit.JUnitRunner
 
 import scala.language.postfixOps
 
 @RunWith(classOf[JUnitRunner])
-class WikiRoomFormatterSpec extends FlatSpec {
+class WikiRoomFormatterSpec extends FlatSpec with Matchers {
+  import WikiRoomFormatter._
 
   "WikiRoomFormatter" should "quote pipes" in {
-      assert(WikiRoomFormatter.wash("| line | one |")==="\\| line \\| one \\|")
+      wash("| line | one |") shouldBe "\\| line \\| one \\|"
   }
 
   it should "quote code" in {
-    assert(WikiRoomFormatter.wash("  /code some(a) { ... } ")==="{noformat}some(a) { ... } {noformat}")
+    wash("  /code some(a) { ... } ") shouldBe "{noformat}some(a) { ... } {noformat}"
   }
 
   it should "replace user mentions" in {
-    assert(WikiRoomFormatter.wash("Hi, @larsr!")==="Hi, [~larsr]!")
+    wash("Hi, @larsr!") shouldBe "Hi, [~larsr]!"
   }
 }

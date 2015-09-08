@@ -2,13 +2,13 @@ package no.mesan.hipchatparse.rooms
 
 import no.mesan.hipchatparse.rooms.RoomParser._
 import org.junit.runner.RunWith
-import org.scalatest.FlatSpec
+import org.scalatest.{Matchers, FlatSpec}
 import org.scalatest.junit.JUnitRunner
 
 import scala.language.postfixOps
 
 @RunWith(classOf[JUnitRunner])
-class RoomParserSpec extends FlatSpec {
+class RoomParserSpec extends FlatSpec with Matchers {
    val singleInput =
      """[
        | {
@@ -60,32 +60,28 @@ class RoomParserSpec extends FlatSpec {
      """.stripMargin
 
    "jsonParse" should "fail on empty input" in {
-     val res= jsonParse("")
-     assert(res isFailure)
+     jsonParse("") shouldBe 'failure
    }
 
    it should "fail on invalid input" in {
-     val res= jsonParse("goble ][ freak")
-     assert(res isFailure)
+     jsonParse("goble ][ freak") shouldBe 'failure
    }
 
    it should "accept a single input record" in {
      val res= jsonParse(singleInput).get
-     assert(res.length===1)
-     //noinspection ZeroIndexToHead
-     val u= res(0)
-     assert(u.user.ID==="1537413")
-     assert(u.text==="public final String name...")
-     assert(u.user.fullName==="Lars Reed")
+     res should have length 1
+
+     val u= res.head
+     u.text shouldBe "public final String name..."
+     u.user.fullName shouldBe "Lars Reed"
+     u.user.ID shouldBe "1537413"
    }
 
    it should "parse multiple users" in {
-     val res= jsonParse(tripleInput).get
-     assert(res.length===3)
+     jsonParse(tripleInput).get should have length 3
    }
 
    it should "handle missing data, but it doesn't..." in {
-     val res= jsonParse(missingInput)
-     assert(res isFailure) // TODO...
+     jsonParse(missingInput) shouldBe 'failure // TODO...
    }
  }

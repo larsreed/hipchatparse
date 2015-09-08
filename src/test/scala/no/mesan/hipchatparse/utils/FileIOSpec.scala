@@ -1,24 +1,24 @@
 package no.mesan.hipchatparse.utils
 
 import org.junit.runner.RunWith
-import org.scalatest.FlatSpec
+import org.scalatest.{Matchers, FlatSpec}
 import FileIO._
 import org.scalatest.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
-class FileIOSpec extends FlatSpec {
+class FileIOSpec extends FlatSpec with Matchers {
   val dir= "src/test/resources/scanDirTest"
 
   "scanDir" should "return empty lists on non-existing directory" in {
     val res= scanDir("fooFight")
-    assert(res.dirs.size===0, "dirs")
-    assert(res.files.size===0, "files")
+    res.dirs should have length 0
+    res.files should have length 0
   }
 
   it should "find files and subdirectories" in {
     val res= scanDir(dir)
-    assert(res.dirs.size===1, "dirs")
-    assert(res.files.size===2, "files")
+    res.dirs should have length 1
+    res.files should have length 2
   }
 
   it should "return full path names" in {
@@ -27,5 +27,4 @@ class FileIOSpec extends FlatSpec {
     all.foreach(p=> assert(p.matches(".*" + dir.replaceAll("/", ".") + ".*"), p + " contains"))
     all.foreach(p=> assert(!p.startsWith("src"), p + " startswith"))
   }
-
 }

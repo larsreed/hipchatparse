@@ -2,13 +2,13 @@ package no.mesan.hipchatparse.roomlist
 
 import no.mesan.hipchatparse.roomlist.RoomlistParser._
 import org.junit.runner.RunWith
-import org.scalatest.FlatSpec
 import org.scalatest.junit.JUnitRunner
+import org.scalatest.{FlatSpec, Matchers}
 
 import scala.language.postfixOps
 
 @RunWith(classOf[JUnitRunner])
-class RoomlistParserSpec extends FlatSpec {
+class RoomlistParserSpec extends FlatSpec with Matchers {
    val singleInput =
      """|{
        |  "rooms":[
@@ -100,44 +100,39 @@ class RoomlistParserSpec extends FlatSpec {
       |}""".stripMargin
 
    "jsonParse" should "fail on empty input" in {
-     val res= jsonParse("")
-     assert(res isFailure)
+     jsonParse("") shouldBe 'failure
    }
 
    it should "fail on invalid input" in {
-     val res= jsonParse("goble ][ freak")
-     assert(res isFailure)
+     jsonParse("goble ][ freak") shouldBe 'failure
    }
 
    it should "accept a single input record" in {
-     val res= jsonParse(singleInput).get
-     assert(res.length===1)
-     val r= res.head
-     assert(r.id==="Mesan")
-     assert(r.name==="Mesan")
-     assert(r.isPublic)
+     val result= jsonParse(singleInput).get
+     result should have length 1
+
+     val first= result.head
+     first.id should equal("Mesan")
+     first.name should equal("Mesan")
+     first shouldBe 'public
    }
 
    it should "parse multiple rooms" in {
-     val res= jsonParse(tripleInput).get
-     assert(res.length===3)
+     jsonParse(tripleInput).get should have length 3
    }
 
   it should "handle special characters" in {
-    val res= jsonParse(specialInput).get
-    val r= res.head
-    assert(r.id==="Mesan_ Old")
-    assert(r.name==="Mesan: Old")
+    val result= jsonParse(specialInput).get.head
+    result.id shouldBe "Mesan_ Old"
+    result.name shouldBe "Mesan: Old"
   }
 
   it should "detect private rooms" in {
-    val res= jsonParse(specialInput).get
-    val r= res.head
-    assert(!r.isPublic)
+    val result= jsonParse(specialInput).get.head
+    result should not be 'public
   }
 
    it should "handle missing data, but it doesn't..." in {
-     val res= jsonParse(missingInput)
-     assert(res isFailure) // TODO...
+     jsonParse(missingInput) shouldBe 'failure // TODO...
    }
  }
