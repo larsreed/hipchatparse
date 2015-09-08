@@ -17,6 +17,7 @@ This little project:
         ```
 
     * The text tables are split at each 1000 rows, to stop Confluence from choking...
+    * What looks like URLs are converted into [links]
 4. Also creates one large HTML file containing tables with the above structure for each room (+ a TOC) 
     
 ### Structure ###
@@ -68,6 +69,8 @@ lre = Lars Reed, Mesan AS
 
 ### Caveats ###
 * Overwrites the result files without warning
+* The URL-matching regexp is slow. Added a timeout to parsing to avoid hangs / aborted processing
+* There is a timeout to abort if the communication fails, however, it will not abort if an actor hangs while processing a message
 
 ### TODO ###
 yes...  e.g. 

@@ -3,11 +3,18 @@ package no.mesan.hipchatparse.rooms
 import java.util.regex.Pattern
 
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
-import akka.event.LoggingReceive
+import akka.event.{LoggingAdapter, LoggingReceive}
+
+import scala.concurrent.duration._
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.language.postfixOps
+
 import no.mesan.hipchatparse.rooms.RoomWriter.WriteRoom
-import no.mesan.hipchatparse.utils.NameHelper
+import no.mesan.hipchatparse.utils.{Tools, NameHelper}
 import no.mesan.hipchatparse.{FormatRoom, LastRoom}
 
+import scala.concurrent.{Await, Future}
+import scala.util.{Success, Failure}
 import scala.xml.Utility
 
 /** Create a HTML page for all rooms. */
@@ -41,11 +48,11 @@ class HtmRoomFormatter(master: ActorRef, writer: ActorRef) extends Actor with Ac
     """</body>
       |</html>""".stripMargin)
 
-  private def roomTitle(room: Room) = s"<h2 id='${name2id(room.name)}'>${room.fullName.getOrElse(room.name)}</h2>"
+  private def roomTitle(room: Room) = s"<h2 id='${name2id(room.name)}'>${room.roomName}</h2>"
 
   override def receive: Receive = LoggingReceive {
     case FormatRoom(room) =>
-      outputHead ::= s"<li><a href='#${name2id(room.name)}'>${room.fullName.getOrElse(room.name)}</a></li>"
+      outputHead ::= s"<li><a href='#${name2id(room.name)}'>${room.roomName}</a></li>"
       outputBody ::= ""
       outputBody ::= roomTitle(room)
       outputBody ::=
@@ -63,7 +70,7 @@ class HtmRoomFormatter(master: ActorRef, writer: ActorRef) extends Actor with Ac
           s"""    <tr>
              |      <td class="dateCell"><nobr>${msg.dateString}</nobr></td>
              |      <td class="nameCell"><nobr>${msg.user.fullName}</nobr></td>
-             |      <td class="textCell">${HtmlRoomFormatter.wash(msg.text)}</td>
+             |      <td class="textCell">${HtmlRoomFormatter.wash(msg.text, log)}</td>
              |    </tr>""".stripMargin
       outputBody ::=
         """  </tbody>
@@ -85,16 +92,28 @@ object HtmlRoomFormatter {
   private val noformat= "{noformat}"
 
   /** Cleanup contents. */
-  def wash(text: String): String = {
+  def wash(text: String, log: LoggingAdapter): String = {
     val washed= text
       .replaceAll("""\\"""", """"""") // Replace extraneous quoting
       .replaceAll("(?ms)^\\s*/code\\s+(\\S.*)", noformat + "$1" + noformat) // quote code
       .replaceAll("\\\\(\r?)[\n]", " \n") // remove escaped line feeds
     val splat= washed.split(Pattern.quote(noformat))
-    (for (i <- 0 to splat.size-1) yield {
+    val coded= for (i <- 0 to splat.size - 1) yield
       if (isOdd(i)) "<pre>" + Utility.escape(splat(i)) + "</pre>"
       else Utility.escape(splat(i))
-    }).mkString("")
+    linkify(coded.mkString(""), log)
   }
 
+  private def linkify(s: String, log: LoggingAdapter): String = {
+    Tools.urlParseMaybe(s, 2 seconds) match {
+      case Failure(err) =>
+        log.debug(s"""linkify failed: $err on ${s.replaceAll("[\n\r+]", "")}""")
+        s
+      case Success(list) =>
+        val mapped= list.map { case (isLink, text)  =>
+          if (isLink) s"<a href='$text'>$text</a>"
+          else text }
+        mapped.mkString("")
+    }
+  }
 }

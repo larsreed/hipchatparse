@@ -6,4 +6,5 @@ import no.mesan.hipchatparse.messages.Message
 case class Room(name: String, fullName: Option[String], conversation: List[Message]) {
   def withFullName(name: String) = this.copy(fullName=Some(name))
   def withConversation(talk: List[Message]) = this.copy(conversation=talk)
+  def roomName = fullName.getOrElse(name)
 }

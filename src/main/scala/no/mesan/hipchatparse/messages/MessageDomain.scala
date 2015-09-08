@@ -4,8 +4,8 @@ import java.time.{LocalDate, LocalDateTime}
 
 import no.mesan.hipchatparse.users.User
 
-/* A message in a room. */
 //noinspection ScalaFileName
+/* A message in a room. */
 case class Message(user: User, datestamp: Option[String], text: String) {
   /** Convert to real date object */
   def dateTime: Option[LocalDateTime]= datestamp.map(LocalDateTime.parse)

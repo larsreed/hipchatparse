@@ -75,7 +75,8 @@ class HipChatParseMain extends Actor with Stash with ActorLogging {
 
     case ReceiveTimeout =>
       log.error(s"No action for too long -- terminated while waiting for $roomList")
-      self ! Stop
+      context.system.shutdown()
+      println("boo")
 
     case Breakdown(err) =>
       log.error("FATAL: " + err)
@@ -95,8 +96,7 @@ class HipChatParseMain extends Actor with Stash with ActorLogging {
     case ReceiveTimeout =>
       stash()
       unstashAll()
-      self ! Stop
-      context become receive // Read the stop message
+      context become receive // Reread the timeout message
 
     case _ => stash()
   }

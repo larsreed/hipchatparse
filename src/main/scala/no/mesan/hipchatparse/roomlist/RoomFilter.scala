@@ -18,6 +18,7 @@ class RoomFilter(master: ActorRef, userDb:ActorRef, roomDb: ActorRef, formatters
 
   override def receive: Receive = ready
 
+  //noinspection ForwardReference
   val ready: Receive = LoggingReceive {
       case FilterRoom(room) =>
         currentRoom= room
