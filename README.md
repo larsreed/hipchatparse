@@ -1,4 +1,4 @@
-# Parse HipChat JSON to wiki #
+# Parse HipChat JSON to wiki and HTML #
 This little project:
 
 1. Reads the files in a HipChat export (must be unzipped, delete rooms that should not be included)
@@ -17,6 +17,7 @@ This little project:
         ```
 
     * The text tables are split at each 1000 rows, to stop Confluence from choking...
+4. Also creates one large HTML file containing tables with the above structure for each room (+ a TOC) 
     
 ### Structure ###
 
@@ -63,6 +64,7 @@ lre = Lars Reed, Mesan AS
 ### History ###
 * v1 2015.08.31 lre Initial version
 * v2 2015.09.02 lre Reads room directory
+* v3 2015.09.06 lre Includes HTML
 
 ### Caveats ###
 * Overwrites the result files without warning
