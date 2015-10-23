@@ -60,6 +60,7 @@ class HtmRoomFormatter(master: ActorRef, writer: ActorRef) extends Actor with Ac
           |  <thead>
           |    <tr>
           |      <th class="dateHead">Date</th>
+          |      <th class="timeHead">Time</th>
           |      <th class="nameHead">User</th>
           |      <th class="textHead">Text</th>
           |    </tr>
@@ -69,6 +70,7 @@ class HtmRoomFormatter(master: ActorRef, writer: ActorRef) extends Actor with Ac
         outputBody ::=
           s"""    <tr>
              |      <td class="dateCell"><nobr>${msg.dateString}</nobr></td>
+             |      <td class="timeCell"><nobr>${msg.timeString}</nobr></td>
              |      <td class="nameCell"><nobr>${msg.user.fullName}</nobr></td>
              |      <td class="textCell">${HtmlRoomFormatter.wash(msg.text, log)}</td>
              |    </tr>""".stripMargin

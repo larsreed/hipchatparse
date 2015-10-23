@@ -10,7 +10,7 @@ import no.mesan.hipchatparse.users.NoUser
 /** Discards unwanted messages. */
 class MessageFilter(master: ActorRef, formatters: List[ActorRef]) extends Actor with ActorLogging {
 
-  private val ignoredUsers=List("JIRA", "GitHub")
+  private val ignoredUsers=List("JIRA", "GitHub", "Polly", "RSS")
 
   override def receive: Receive = LoggingReceive {
     case FilterRoom(room) =>
@@ -56,7 +56,7 @@ object MessageFilter {
         if (msg.user.ID == lastUser) Message(NoUser, msg.datestamp, msg.text)
         else msg
       val res2=
-        if (res1.dateString == lastDate) Message (res1.user, None, res1.text)
+        if (res1.dateString == lastDate) Message(res1.user, msg.datestamp, res1.text, true)
         else res1
       lastUser= msg.user.ID
       lastDate= msg.dateString

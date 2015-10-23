@@ -1,5 +1,7 @@
 package no.mesan.hipchatparse
 
+import java.nio.charset.StandardCharsets
+
 /** Misc. constants. */
 object Config {
   /** Line feed. */
@@ -7,6 +9,9 @@ object Config {
 
   /** Exclude private rooms. */
   val excludePrivate= true
+
+  /** Output charset */
+  val resultCharSet = StandardCharsets.UTF_8
 }
 
 /** Names of actors and config variables. */
